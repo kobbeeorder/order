@@ -145,30 +145,43 @@
             container.appendChild(card);
         });
     }
+function selectItem(item) {
+    document.getElementById('displayMenu').value = item.name;
+    const sizeSelect = document.getElementById('sizePrice');
+    sizeSelect.innerHTML = "";
+    if(item.hot) sizeSelect.add(new Option(`ร้อน (${item.hot}.-)`, `${item.hot}`));
+    if(item.cold) sizeSelect.add(new Option(`เย็น (${item.cold}.-)`, `${item.cold}`));
 
-    function selectItem(item) {
-        document.getElementById('displayMenu').value = item.name;
-        const sizeSelect = document.getElementById('sizePrice');
-        sizeSelect.innerHTML = "";
-        if(item.hot) sizeSelect.add(new Option(`ร้อน (${item.hot}.-)`, `${item.hot}`));
-        if(item.cold) sizeSelect.add(new Option(`เย็น (${item.cold}.-)`, `${item.cold}`));
-
-        const roastArea = document.getElementById('roastArea');
-        roastArea.style.display = item.type === 'coffee' ? "block" : "none";
-        
-        const sweetSelect = document.getElementById('sweetness');
-        const sweetNote = document.getElementById('sweetNote');
-        sweetNote.innerText = item.note || "";
-        sweetSelect.disabled = item.sweet === 'fixed';
-        if(item.sweet === 'fixed') {
-            sweetSelect.innerHTML = '<option value="ฟิกซ์หวาน">ปรับความหวานไม่ได้</option>';
+    const roastArea = document.getElementById('roastArea');
+    const roastSelect = document.getElementById('roast');
+    
+    // ส่วนที่แก้ไข: ถ้าเมนูมี roast: 'dark' ให้ล็อกเป็นคั่วเข้มทันที
+    if (item.type === 'coffee') {
+        roastArea.style.display = "block";
+        if (item.roast === 'dark') {
+            roastSelect.innerHTML = '<option value="คั่วเข้ม">คั่วเข้ม (Fixed Dark Roast)</option>';
+            roastSelect.disabled = true; // ล็อกไม่ให้กดเปลี่ยน
         } else {
-            let options = '<option value="100%">ปกติ (100%)</option><option value="50%">หวานน้อย (50%)</option>';
-            if(item.sweet !== 'no0') options += '<option value="0%">ไม่หวาน (0%)</option>';
-            sweetSelect.innerHTML = options;
+            roastSelect.innerHTML = '<option value="คั่วเข้ม">คั่วเข้ม (Dark Roast)</option><option value="คั่วกลาง">คั่วกลาง (Medium Roast)</option>';
+            roastSelect.disabled = false; // เมนูอื่นเลือกได้ปกติ
         }
-        window.scrollTo({ top: document.getElementById('displayMenu').offsetTop - 100, behavior: 'smooth' });
+    } else {
+        roastArea.style.display = "none";
     }
+    
+    // ส่วนความหวาน (เหมือนเดิม)
+    const sweetSelect = document.getElementById('sweetness');
+    const sweetNote = document.getElementById('sweetNote');
+    sweetNote.innerText = item.note || "";
+    sweetSelect.disabled = item.sweet === 'fixed';
+    if(item.sweet === 'fixed') {
+        sweetSelect.innerHTML = '<option value="ฟิกซ์หวาน">ปรับความหวานไม่ได้</option>';
+    } else {
+        let options = '<option value="100%">ปกติ (100%)</option><option value="50%">หวานน้อย (50%)</option>';
+        if(item.sweet !== 'no0') options += '<option value="0%">ไม่หวาน (0%)</option>';
+        sweetSelect.innerHTML = options;
+    }
+}
 
     function addToCart() {
         const menu = document.getElementById('displayMenu').value;
