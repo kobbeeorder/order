@@ -172,7 +172,7 @@
 
     function addToCart() {
         const menu = document.getElementById('displayMenu').value;
-        if(!menu) { alert("กรุณาเลือกเมนูก่อนครับ"); return; }
+        if(!menu) { alert("กรุณาเลือกเมนูก่อน"); return; }
         const price = parseInt(document.getElementById('sizePrice').value);
         const sizeText = document.getElementById('sizePrice').options[document.getElementById('sizePrice').selectedIndex].text.split(' ')[0];
         const roast = document.getElementById('roastArea').style.display === "block" ? document.getElementById('roast').value : "-";
@@ -216,7 +216,7 @@ function sendOrder() {
     let orderList = cart.map((item, i) => `${i+1}. ${item.menu} (${item.sizeText}) หวาน ${item.sweet}%0Aคั่ว: ${item.roast}%0Aเพิ่ม: ${item.addons || '-'}`).join("%0A");
     
     // ปรับหัวข้อให้แสดงชื่อสาขาที่เลือก
-    const message = `☕️ *ออเดอร์ใหม่ร้าน KOBBEE*%0A📍 สาขา : ${branchName}%0A👤 ผู้สั่ง : ${name}%0A%0A${orderList}%0A%0A💰 ราคารวม : ${currentTotal} บาท%0A%0A*รบกวนส่ง QR Code ชำระเงิน*`;
+    const message = `☕️ *ออเดอร์ใหม่ร้าน KOBBEE*%0A%0A📍 สาขา : ${branchName}%0A👤 ผู้สั่ง : ${name}%0A%0A${orderList}%0A%0A💰 ราคารวม : ${currentTotal} บาท%0A%0A*รบกวนส่ง QR Code ชำระเงิน*`;
 
     // ระบบจะเด้งไปหา LINE ID ตามที่เลือกในข้อ 1 อัตโนมัติ
     window.location.href = `https://line.me/R/oaMessage/${branchID}/?${message}`;
