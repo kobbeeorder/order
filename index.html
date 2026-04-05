@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kobbee - Order Online</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --dark-brown: #3E2723; 
+            --cream: #FFFAFA; 
+            --pure-white: #FFFFFF; 
+            --text-dark: #2C1B18; 
+            --grey: #EEEEEE; 
+        }
+        body { font-family: 'Prompt', sans-serif; background-color: var(--cream); color: var(--text-dark); margin: 0; padding: 0; }
+        .header { background-color: var(--dark-brown); color: var(--pure-white); text-align: center; padding: 30px 20px; }
+        .container { max-width: 600px; margin: -20px auto 40px; background: var(--pure-white); padding: 25px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        h2 { border-left: 5px solid var(--dark-brown); padding-left: 15px; color: var(--dark-brown); font-size: 1.2rem; margin-top: 30px; }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 15px; }
+        .menu-card { border: 1px solid var(--grey); border-radius: 15px; overflow: hidden; cursor: pointer; transition: 0.3s; text-align: center; background: var(--pure-white); }
+        .menu-card:hover { border-color: var(--dark-brown); transform: translateY(-3px); }
+        .menu-card img { width: 100%; height: 110px; object-fit: cover; }
+        .order-section { margin-top: 30px; padding: 20px; background: #FFFBF5; border: 1px solid var(--grey); border-radius: 20px; }
+        label { display: block; margin-top: 15px; font-weight: 600; color: var(--dark-brown); }
+        select, input { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid var(--grey); border-radius: 10px; box-sizing: border-box; font-family: inherit; }
+        .btn-add { background: var(--pure-white); color: var(--dark-brown); border: 2px solid var(--dark-brown); width: 100%; padding: 15px; border-radius: 10px; font-weight: 600; margin-top: 20px; cursor: pointer; transition: 0.3s; }
+        .btn-add:hover { background: var(--dark-brown); color: var(--pure-white); }
+        .btn-submit { background: var(--dark-brown); color: var(--pure-white); width: 100%; padding: 18px; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: 600; margin-top: 25px; cursor: pointer; }
+        .cart-area { margin-top: 20px; border-top: 2px dashed var(--grey); padding-top: 20px; }
+        .cart-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--grey); font-size: 0.85rem; }
+        .remove-btn { color: red; cursor: pointer; font-weight: bold; margin-left: 10px; }
+        .note { color: #d32f2f; font-size: 0.75rem; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1 style="margin:0;">KOBBEE</h1>
+    <p style="margin:5px 0 0;">Where every cup feels like home</p>
+</div>
+
+<div class="container">
+    <h2>☕️ Coffee Selection</h2>
+    <div class="menu-grid" id="coffee-menu"></div>
+    
+    <h2>🍵 Non-Coffee Selection</h2>
+    <div class="menu-grid" id="non-coffee-menu"></div>
+
+    <div class="order-section">
+        <h3 style="text-align:center; color: var(--dark-brown);">ปรับแต่งเครื่องดื่ม</h3>
+        <input type="text" id="displayMenu" readonly placeholder="คลิกเลือกเมนูจากด้านบน">
+        
+        <label>ขนาด / ราคา</label>
+        <select id="sizePrice"></select>
+
+        <div id="roastArea">
+            <label>ระดับคั่วเมล็ด</label>
+            <select id="roast">
+                <option value="คั่วเข้ม">คั่วเข้ม (Dark Roast)</option>
+                <option value="คั่วกลาง">คั่วกลาง (Medium Roast)</option>
+            </select>
+        </div>
+
+        <label>ระดับความหวาน</label>
+        <select id="sweetness"></select>
+        <div id="sweetNote" class="note"></div>
+
+        <label>Add-on เพิ่มเติม</label>
+        <div id="addons" style="font-size:0.85rem; display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
+            <label style="margin:0; font-weight:normal;"><input type="checkbox" class="addon" value="ช็อตกาแฟ" data-price="15"> +ช็อต (15.-)</label>
+            <label style="margin:0; font-weight:normal;"><input type="checkbox" class="addon" value="วิปครีม" data-price="20"> +วิป (20.-)</label>
+            <label style="margin:0; font-weight:normal;"><input type="checkbox" class="addon" value="นมโอ๊ต" data-price="20"> +นมโอ๊ต (20.-)</label>
+            <label style="margin:0; font-weight:normal;"><input type="checkbox" class="addon" value="น้ำผึ้ง" data-price="5"> +น้ำผึ้ง (5.-)</label>
+        </div>
+
+        <button type="button" class="btn-add" onclick="addToCart()">➕ เพิ่มลงตะกร้า</button>
+
+        <div class="cart-area">
+            <h4>🛒 ตะกร้าสินค้าของคุณ</h4>
+            <div id="cartItems"></div>
+            <p style="text-align:right; font-weight:600; margin-top:10px; color: var(--dark-brown);">ราคารวม: <span id="totalPrice">0</span> บาท</p>
+        </div>
+
+<label>เลือกสาขาที่สั่งซื้อ *</label>
+<select id="branch" required>
+    <option value="" disabled selected>กรุณาเลือกสาขา</option>
+    <option value="@590zeikw">สาขา TRR</option> 
+    <option value="@633yhzwf">สาขา สนามกีฬา</option>
+    <option value="@027oaflq">สาขา ศาลาแดง</option> 
+    <option value="@096fazqb">สาขา พญาไท</option>
+</select>
+
+        <label>ชื่อผู้สั่ง (เพื่อเรียกรับออเดอร์) *</label>
+        <input type="text" id="customerName" required placeholder="ระบุชื่อของคุณ">
+
+        <button type="button" class="btn-submit" onclick="sendOrder()">ยืนยันออเดอร์และรับ QR</button>
+    </div>
+</div>
+
+<script>
+    let cart = [];
+    let currentTotal = 0;
+
+    const coffeeMenu = [
+        { name: "อเมริกาโน่ (Americano)", hot: 55, cold: 60, type: 'coffee' },
+        { name: "อเมริกาโน่ส้มสด (Americano Orange)", cold: 70, type: 'coffee', sweet: 'fixed' },
+        { name: "ค๊อบบี้บานอฟฟี่ (Kobbee Banoffee)", cold: 70, type: 'coffee', roast: 'dark', sweet: 'no0' },
+        { name: "อเมริกาโน่ไลม์ (Americano Lime)", cold: 65, type: 'coffee', sweet: 'fixed' },
+        { name: "อเมริกาโน่น้ำผึ้ง (Americano Honey)", cold: 65, type: 'coffee' },
+        { name: "อเมริกาโน่ชาไทย (Americano Thai Tea)", cold: 65, type: 'coffee', sweet: 'fixed' },
+        { name: "คาปูชิโน่ (Cappuccino)", hot: 60, cold: 65, type: 'coffee' },
+        { name: "ลาเต้ (Latte)", hot: 60, cold: 65, type: 'coffee' },
+        { name: "มอคค่า (Mocha)", hot: 65, cold: 70, type: 'coffee', note: "*ไม่หวานจะหวานจากช็อกโกแลตเล็กน้อย" },
+        { name: "คาราเมลมัคคิอาโต้ (Caramel Macchiato)", hot: 65, cold: 70, type: 'coffee' },
+        { name: "เอสเพรสโซ่ (Espresso)", hot: 60, cold: 65, type: 'coffee' },
+        { name: "เอสเพรสโซ่มัทฉะ (Espresso Matcha)", cold: 70, type: 'coffee' }
+    ];
+
+    const nonCoffeeMenu = [
+        { name: "โกโก้เนเธอร์แลนด์ (Cocoa Netherlands)", hot: 60, cold: 65 },
+        { name: "โกโก้เอ็กซ์ตรีม (Cocoa Extreme)", hot: 70, cold: 75 },
+        { name: "ช็อกโกแลตเลอเวอร์ (Chocolate Lover)", hot: 60, cold: 65 },
+        { name: "ชาเขียวออร์แกนิค (Organic Green Tea)", hot: 60, cold: 60, sweet: 'no0' },
+        { name: "ชาไทย (Thai Tea)", cold: 60, sweet: 'no0' },
+        { name: "เคลียร์มัทฉะ (Clear Matcha)", hot: 70, cold: 70 },
+        { name: "มัทฉะลาเต้ (Matcha Latte)", hot: 70, cold: 75 },
+        { name: "มัทฉะน้ำผึ้ง (Matcha Honey)", cold: 70 },
+        { name: "มัทฉะส้ม (Matcha Orange)", cold: 70, sweet: 'fixed' },
+        { name: "นมสดคาราเมล (Fresh Milk with Caramel)", cold: 60, sweet: 'no0' },
+        { name: "ชามะนาว (Lemon Tea)", cold: 60, sweet: 'fixed' },
+        { name: "ชาสตรอว์เบอร์รี (Strawberry Tea)", cold: 60, sweet: 'fixed', note: "*มีส่วนผสมของโซดา" },
+        { name: "สตรอว์เบอร์รีอิตาเลียนโซดา (Strawberry Italian Soda)", cold: 60, sweet: 'fixed' },
+        { name: "Ceremonial Matcha Latte", hot: 115, cold: 120 },
+        { name: "Ceremonial Clear Matcha", hot: 115, cold: 115 }
+    ];
+
+    function renderMenu(items, containerId) {
+        const container = document.getElementById(containerId);
+        items.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'menu-card';
+            card.onclick = () => selectItem(item);
+            card.innerHTML = `<img src="${item.name.split(' ')[0].toLowerCase()}.jpg" onerror="this.src='https://via.placeholder.com/150?text=Kobbee'"><div style="padding:8px; font-size:0.8rem;"><p style="margin:0;">${item.name}</p></div>`;
+            container.appendChild(card);
+        });
+    }
+
+    function selectItem(item) {
+        document.getElementById('displayMenu').value = item.name;
+        const sizeSelect = document.getElementById('sizePrice');
+        sizeSelect.innerHTML = "";
+        if(item.hot) sizeSelect.add(new Option(`ร้อน (${item.hot}.-)`, `${item.hot}`));
+        if(item.cold) sizeSelect.add(new Option(`เย็น (${item.cold}.-)`, `${item.cold}`));
+
+        const roastArea = document.getElementById('roastArea');
+        roastArea.style.display = item.type === 'coffee' ? "block" : "none";
+        
+        const sweetSelect = document.getElementById('sweetness');
+        const sweetNote = document.getElementById('sweetNote');
+        sweetNote.innerText = item.note || "";
+        sweetSelect.disabled = item.sweet === 'fixed';
+        if(item.sweet === 'fixed') {
+            sweetSelect.innerHTML = '<option value="ฟิกซ์หวาน">ปรับความหวานไม่ได้</option>';
+        } else {
+            let options = '<option value="100%">ปกติ (100%)</option><option value="50%">หวานน้อย (50%)</option>';
+            if(item.sweet !== 'no0') options += '<option value="0%">ไม่หวาน (0%)</option>';
+            sweetSelect.innerHTML = options;
+        }
+        window.scrollTo({ top: document.getElementById('displayMenu').offsetTop - 100, behavior: 'smooth' });
+    }
+
+    function addToCart() {
+        const menu = document.getElementById('displayMenu').value;
+        if(!menu) { alert("กรุณาเลือกเมนูก่อนครับ"); return; }
+        const price = parseInt(document.getElementById('sizePrice').value);
+        const sizeText = document.getElementById('sizePrice').options[document.getElementById('sizePrice').selectedIndex].text.split(' ')[0];
+        const roast = document.getElementById('roastArea').style.display === "block" ? document.getElementById('roast').value : "-";
+        const sweet = document.getElementById('sweetness').value;
+        let addonNames = [];
+        let addonPrice = 0;
+        document.querySelectorAll('.addon:checked').forEach(c => { addonNames.push(c.value); addonPrice += parseInt(c.dataset.price); });
+        const totalItemPrice = price + addonPrice;
+        cart.push({ menu, sizeText, roast, sweet, addons: addonNames.join(","), price: totalItemPrice });
+        document.querySelectorAll('.addon').forEach(c => c.checked = false);
+        updateCartUI();
+    }
+
+    function updateCartUI() {
+        const cartDiv = document.getElementById('cartItems');
+        cartDiv.innerHTML = "";
+        currentTotal = 0;
+        cart.forEach((item, index) => {
+            currentTotal += item.price;
+            cartDiv.innerHTML += `<div class="cart-item">
+                <span>${index+1}. ${item.menu} (${item.sizeText}) <br><small>หวาน: ${item.sweet} | คั่ว: ${item.roast} | เพิ่ม: ${item.addons || '-'}</small></span>
+                <span>${item.price}.- <span class="remove-btn" onclick="removeItem(${index})">✕</span></span>
+            </div>`;
+        });
+        document.getElementById('totalPrice').innerText = currentTotal;
+    }
+
+    function removeItem(index) { cart.splice(index, 1); updateCartUI(); }
+
+function sendOrder() {
+    const branchSelect = document.getElementById('branch');
+    const branchID = branchSelect.value; // ดึง LINE ID (@...) จากที่เลือก
+    const branchName = branchSelect.options[branchSelect.selectedIndex].text; // ดึงชื่อสาขาไปใส่ในข้อความ
+    const name = document.getElementById('customerName').value;
+
+    if(cart.length === 0 || !branchID || !name) { 
+        alert("กรุณาเลือกเมนู เลือกสาขา และใส่ชื่อ"); 
+        return; 
+    }
+
+    let orderList = cart.map((item, i) => `${i+1}. ${item.menu} (${item.sizeText}) หวาน ${item.sweet}%0Aคั่ว: ${item.roast}%0Aเพิ่ม: ${item.addons || '-'}`).join("%0A");
+    
+    // ปรับหัวข้อให้แสดงชื่อสาขาที่เลือก
+    const message = `☕️ *ออเดอร์ใหม่ร้าน KOBBEE*%0A📍 สาขา : ${branchName}%0A👤 ผู้สั่ง : ${name}%0A%0A${orderList}%0A%0A💰 ราคารวม : ${currentTotal} บาท%0A%0A*รบกวนส่ง QR Code ชำระเงิน*`;
+
+    // ระบบจะเด้งไปหา LINE ID ตามที่เลือกในข้อ 1 อัตโนมัติ
+    window.location.href = `https://line.me/R/oaMessage/${branchID}/?${message}`;
+}
+
+    renderMenu(coffeeMenu, 'coffee-menu');
+    renderMenu(nonCoffeeMenu, 'non-coffee-menu');
+</script>
+</body>
+</html>
